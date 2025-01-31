@@ -9,10 +9,20 @@ spring:
             uri: lb://order-service
             predicates:
               - Path=/order/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                 name: order-service
+                 fallbackuri: forward:/orderFallBack
           - id: payment-service
             uri: lb://payment-service
             predicates:
               - Path=/payment/**
+            filters:
+              - name: CircuitBreaker
+                args:
+                  name: payment-service
+                  fallbackuri: forward:/paymentFallBack
 eureka:
   client:
     fetch-registry: true
@@ -24,3 +34,11 @@ eureka:
 
 server:
   port: 8989
+
+hystrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 5000
